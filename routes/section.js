@@ -42,6 +42,35 @@ app.get('/getSection', (req, res, next) => {
   );
 });
 
+app.get('/getSectionForSidemenu', (req, res, next) => {
+  db.query(`Select *
+  From section Where published = 1 AND  (button_position="Admin" OR button_position="Reports")
+   ORDER BY sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+          const groupByCategory = result.reduce(function (r, a) {
+        r[a.groups] = r[a.groups] || [];
+        r[a.groups].push(a);
+        return r;
+    }, Object.create(null));
+
+        return res.status(200).send({
+          data: groupByCategory,
+          msg: 'Success',
+
+            });
+
+        }
+ 
+    }
+  );
+});
 
 app.post('/getSectionById', (req, res, next) => {
   db.query(`Select section_id

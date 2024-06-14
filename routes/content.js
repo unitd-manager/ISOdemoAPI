@@ -11,6 +11,9 @@ app.use(
     createParentPath: true,
   })
 );
+
+
+
 app.get("/getContent", (req, res, next) => {
   db.query(
     `Select c.title
@@ -26,9 +29,9 @@ app.get("/getContent", (req, res, next) => {
   ,c.description
   ,c.creation_date
   ,c.modification_date 
-  ,s.title
-  ,ca.title
-  ,sc.title
+  ,s.section_title
+  ,ca.category_title
+  ,sc.sub_category_title
   FROM content c
   LEFT JOIN section s ON s.section_id=c.section_id 
   LEFT JOIN category ca ON ca.category_id=c.category_id 
@@ -51,6 +54,332 @@ app.get("/getContent", (req, res, next) => {
   );
 });
 
+app.get('/getAboutUs', (req, res, next) => {
+  db.query(
+    `SELECT c.content_id,c.section_id,c.category_id
+               ,c.sub_category_id
+               ,c.author_id
+               ,c.show_title
+               ,c.type
+               ,c.sort_order
+               ,c.published
+               ,c.member_only
+               ,c.latest
+               ,c.favourite
+               ,c.creation_date
+               ,c.modification_date
+               ,c.content_date
+               ,c.chi_title
+               ,c.chi_description
+               ,c.content_type
+               ,c.external_link
+               ,c.meta_title
+               ,c.meta_keyword
+               ,c.meta_description
+               ,c.flag
+               ,c.internal_link
+               ,c.two_in_row
+               ,c.three_in_row
+                ,c.title AS title
+                ,c.description_short AS description_short
+                ,c.description AS description
+                ,c.title1 AS title1
+                ,c.description1 AS description1
+                ,c.title2 AS title2
+                ,c.description2 AS description2
+                ,c.title3 AS title3
+                ,c.description3 AS description3
+              ,s.section_title
+              ,s.section_type
+              ,ca.category_title
+              ,ca.category_type
+              ,sc.sub_category_title
+              ,sc.sub_category_type
+        FROM content c
+        LEFT JOIN (section s)      ON (c.section_id       = s.section_id)
+        LEFT JOIN (category ca)    ON (c.category_id      = ca.category_id)
+        LEFT JOIN (sub_category sc)ON (c.sub_category_id  = sc.sub_category_id)
+         WHERE c.published = 1
+ AND c.content_type = 'Record'
+ AND c.section_id  = 23
+ AND (c.sub_category_id IS NULL OR c.sub_category_id ='')
+ ORDER BY c.sort_order ASC LIMIT 0, 50`,
+    (err, result) => {
+       
+      if (result.length === 0) {
+        return res.status(400).send({
+          msg: 'No result found'
+        });
+      } else {
+            return res.status(200).send({
+          data: result,
+          msg:'Success'
+        });
+
+        }
+ 
+    }
+  );
+});
+
+app.get('/getShipping', (req, res, next) => {
+  db.query(
+    `SELECT c.content_id,c.section_id,c.category_id
+               ,c.sub_category_id
+               ,c.author_id
+               ,c.show_title
+               ,c.type
+               ,c.sort_order
+               ,c.published
+               ,c.member_only
+               ,c.latest
+               ,c.favourite
+               ,c.creation_date
+               ,c.modification_date
+               ,c.content_date
+               ,c.chi_title
+               ,c.chi_description
+               ,c.content_type
+               ,c.external_link
+               ,c.meta_title
+               ,c.meta_keyword
+               ,c.meta_description
+               ,c.flag
+               ,c.internal_link
+               ,c.two_in_row
+               ,c.three_in_row
+                ,c.title AS title
+                ,c.description_short AS description_short
+                ,c.description AS description
+                ,c.title1 AS title1
+                ,c.description1 AS description1
+                ,c.title2 AS title2
+                ,c.description2 AS description2
+                ,c.title3 AS title3
+                ,c.description3 AS description3
+              ,s.section_title
+              ,s.section_type
+              ,ca.category_title
+              ,ca.category_type
+              ,sc.sub_category_title
+            FROM content c
+        LEFT JOIN (section s)      ON (c.section_id       = s.section_id)
+        LEFT JOIN (category ca)    ON (c.category_id      = ca.category_id)
+        LEFT JOIN (sub_category sc)ON (c.sub_category_id  = sc.sub_category_id)
+        WHERE c.published = 1
+ AND c.content_type = 'Shipping' 
+ ORDER BY c.sort_order ASC LIMIT 0, 50`,
+    (err, result) => {
+       
+      if (result.length === 0) {
+        return res.status(400).send({
+          msg: 'No result found'
+        });
+      } else {
+            return res.status(200).send({
+          data: result,
+          msg:'Success'
+        });
+
+        }
+ 
+    }
+  );
+});
+
+app.get('/getAboutUsCompany', (req, res, next) => {
+  db.query(
+    `SELECT c.content_id,c.section_id,c.category_id
+               ,c.sub_category_id
+               ,c.author_id
+               ,c.show_title
+               ,c.type
+               ,c.sort_order
+               ,c.published
+               ,c.member_only
+               ,c.latest
+               ,c.favourite
+               ,c.creation_date
+               ,c.modification_date
+               ,c.content_date
+               ,c.chi_title
+               ,c.chi_description
+               ,c.content_type
+               ,c.external_link
+               ,c.meta_title
+               ,c.meta_keyword
+               ,c.meta_description
+               ,c.flag
+               ,c.internal_link
+               ,c.two_in_row
+               ,c.three_in_row
+                ,c.title AS title
+                ,c.description_short AS description_short
+                ,c.description AS description
+                ,c.title1 AS title1
+                ,c.description1 AS description1
+                ,c.title2 AS title2
+                ,c.description2 AS description2
+                ,c.title3 AS title3
+                ,c.description3 AS description3
+              ,s.section_title
+              ,s.section_type
+              ,ca.category_title
+              ,ca.category_type
+              ,sc.sub_category_title
+              ,sc.sub_category_type
+        FROM content c
+        LEFT JOIN (section s)      ON (c.section_id       = s.section_id)
+        LEFT JOIN (category ca)    ON (c.category_id      = ca.category_id)
+        LEFT JOIN (sub_category sc)ON (c.sub_category_id  = sc.sub_category_id)
+         WHERE c.published = 1
+ AND c.content_type = 'Record'
+ AND c.section_id  = 25
+ AND (c.sub_category_id IS NULL OR c.sub_category_id ='')
+ ORDER BY c.sort_order ASC LIMIT 0, 50`,
+    (err, result) => {
+       
+      if (result.length === 0) {
+        return res.status(400).send({
+          msg: 'No result found'
+        });
+      } else {
+            return res.status(200).send({
+          data: result,
+          msg:'Success'
+        });
+
+        }
+ 
+    }
+  );
+});
+
+app.get("/getValueList", (req, res, next) => {
+  db.query(
+    `SELECT 
+       value,valuelist_id
+       FROM valuelist WHERE key_text="Content Type"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.get("/getFaqPage", (req, res, next) => {
+  db.query(
+    `SELECT 
+       title,description,content_id
+       FROM content WHERE content_type="FAQ Page"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getStoreLocatorPage", (req, res, next) => {
+  db.query(
+    `SELECT 
+       title,description,content_id
+       FROM content WHERE content_type="StoreLocator"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getSupportPage", (req, res, next) => {
+  db.query(
+    `SELECT 
+       title,description,content_id
+       FROM content WHERE content_type="Support Policy"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getReturnsPage", (req, res, next) => {
+  db.query(
+    `SELECT 
+       title,description,content_id
+       FROM content WHERE content_type="Returns Policy"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getReturnsDescriptionPage", (req, res, next) => {
+  db.query(
+    `SELECT 
+       description,content_id
+       FROM content WHERE content_type="Returns Policy Description"`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+
+
+
 app.post("/getContentById", (req, res, next) => {
   db.query(
     `Select c.title
@@ -66,9 +395,9 @@ app.post("/getContentById", (req, res, next) => {
   ,c.description
   ,c.creation_date
   ,c.modification_date 
-  ,s.title
-  ,ca.title
-  ,sc.title
+  ,s.section_title
+  ,ca.category_title
+  ,sc.sub_category_title
   FROM content c
   LEFT JOIN section s ON s.section_id=c.section_id 
   LEFT JOIN category ca ON ca.category_id=c.category_id 
@@ -143,7 +472,6 @@ app.post("/editContent", (req, res, next) => {
             ,content_type=${db.escape(req.body.content_type)}
             ,category_id=${db.escape(req.body.category_id)}
             ,sub_category_id=${db.escape(req.body.sub_category_id)}
-            ,title=${db.escape(req.body.title)}
             ,show_title=${db.escape(req.body.show_title)}
             ,published=${db.escape(req.body.published)}
             ,content_date=${db.escape(req.body.content_date)}
@@ -226,7 +554,7 @@ app.post("/insertContent", (req, res, next) => {
     description_short: req.body.description_short,
     description: req.body.description,
     sort_order: 0,
-    published: 0,
+    published: 1,
     member_only: req.body.member_only,
     latest: req.body.latest,
     favourite: req.body.favourite,
@@ -281,7 +609,7 @@ app.post("/deleteContent", (req, res, next) => {
 
 app.get("/getSection", (req, res, next) => {
   db.query(
-    `SELECT section_id,title
+    `SELECT section_id,section_title
   FROM section`,
     (err, result) => {
       if (err) {
@@ -300,11 +628,36 @@ app.get("/getSection", (req, res, next) => {
   );
 });
 
+app.get('/getCategory', (req, res, next) => {
+  db.query(`SELECT
+  category_title,category_id
+   From category 
+   WHERE category_id != ''`,
+    (err, result) => {
+       
+      if (err) {
+        console.log('error: ', err);
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+        });
+      }
+
+ }
+ );
+});
+
+
 app.post("/getCategoryTitle", (req, res, next) => {
   db.query(
     `SELECT 
     section_id
-    ,title
+    ,section_title
     ,category_id
      FROM category 
      where section_id = ${db.escape(req.body.section_id)}`,
@@ -326,7 +679,7 @@ app.post("/getCategoryTitle", (req, res, next) => {
 });
 app.get("/getSubCategory", (req, res, next) => {
   db.query(
-    `SELECT sub_category_id, title
+    `SELECT sub_category_id, sub_category_title
   FROM sub_category`,
     (err, result) => {
       if (err) {
@@ -334,7 +687,7 @@ app.get("/getSubCategory", (req, res, next) => {
         return res.status(400).send({
           data: err,
           msg: "failed",
-        });
+        })
       } else {
         return res.status(200).send({
           data: result,

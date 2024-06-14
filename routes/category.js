@@ -19,9 +19,205 @@ app.use(
   })
 );
 
+app.get("/getCategory", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,p.section_title
+    ,c.seo_title
+    FROM category c
+    LEFT JOIN section p  ON (p.section_id = c.section_id)
+    WHERE c.category_id!=''
+  ORDER By c.sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return;
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.get("/getCategories", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,p.section_title
+    ,c.seo_title
+    FROM category c
+    LEFT JOIN section p  ON (p.section_id = c.section_id)
+    WHERE c.category_id!=''
+  ORDER By c.sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return;
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.post("/getBlogsbySearch", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.published
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,c.seo_title
+    ,COUNT(b.category_id) AS NumberOfBlogs
+    FROM category c
+     LEFT JOIN blog b ON b.category_id = c.category_id
+     LEFT JOIN media m ON (b.blog_id = m.record_id) AND (m.room_name='Blog')
+    where b.title LIKE CONCAT('%', ${db.escape(req.body.keyword)}, '%') 
+     GROUP BY b.blog_id`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
 app.get("/getAllCategory", (req, res, next) => {
   db.query(
-    `SELECT title
+    `SELECT 
+    c.category_title,
+    c.category_id,
+    c.section_id,
+    c.description,
+    c.sort_order,
+    c.published,
+    c.creation_date,
+    c.modification_date,
+    c.chi_title,
+    c.chi_description,
+    c.display_type,
+    c.template,
+    c.category_type,
+    c.show_navigation_panel,
+    c.external_link,
+    c.meta_title,
+    c.meta_keyword,
+    c.meta_description,
+    c.category_filter,
+    c.description_short,
+    c.member_only,
+    c.internal_link,
+    c.show_in_nav,
+    c.seo_title,
+    m.file_name AS images
+FROM 
+    category c
+LEFT JOIN 
+    media m ON m.record_id = c.category_id AND m.room_name ='Category'
+WHERE 
+    c.category_id != '' AND c.published = 1
+GROUP BY 
+    c.category_id;
+
+`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err,
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.get("/getAllBlogCategory", (req, res, next) => {
+  db.query(
+    `SELECT category_title
     , category_id
     ,section_id
     ,description
@@ -44,8 +240,9 @@ app.get("/getAllCategory", (req, res, next) => {
     ,member_only
     ,internal_link
     ,show_in_nav
+    ,seo_title
     FROM category
-    WHERE category_id!=''`,
+    WHERE section_id = 33`,
     (err, result) => {
       if (err) {
         return res.status(400).send({
@@ -62,9 +259,36 @@ app.get("/getAllCategory", (req, res, next) => {
 });
 
 
-app.post("/getCategoryById", (req, res, next) => {
+
+app.get("/getOffersCategory", (req, res, next) => {
   db.query(
-    `SELECT * FROM sub_category WHERE category_id = ${db.escape(req.body.category_id)}`,
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,c.seo_title
+from category c
+Left Join product p on p.category_id = c.category_id
+where p.discount_percentage!='' AND published=1`,
     (err, result) => {
       if (err) {
         return res.status(400).send({
@@ -80,33 +304,11 @@ app.post("/getCategoryById", (req, res, next) => {
   );
 });
 
-app.get("/getOffers", (req, res, next) => {
-  db.query(
-    `SELECT *
-    FROM product
-    WHERE DATE(discount_from_date) = DATE(CURRENT_DATE())
-    OR MONTH(discount_from_date) = MONTH(CURRENT_DATE())
-    AND YEAR(discount_from_date) = YEAR(CURRENT_DATE())`,
-    (err, result) => {
-      if (err) {
-        return res.status(400).send({
-          data: err,
-        });
-      } else {
-        return res.status(200).send({
-          data: result,
-          msg: "Success",
-        });
-      }
-    }
-  );
-});
 
 app.post("/getProductByCategory", (req, res, next) => {
   db.query(
     `select p.title
     ,p.product_id
-    ,p.image
     ,p.sub_category_id
     ,p.product_code
     ,p.description
@@ -117,7 +319,7 @@ app.post("/getProductByCategory", (req, res, next) => {
     ,p.creation_date
     ,p.modification_date
     ,p.chi_title
-    ,p.chi_description
+    ,p.product_description
     ,p.sort_order
     ,p.meta_title
     ,p.meta_description
@@ -171,11 +373,104 @@ app.post("/getProductByCategory", (req, res, next) => {
     ,p.sales_part_number
     ,p.igst
     ,c.category_id
-    ,c.title
-    from category c
+    ,c.category_title 
+     ,GROUP_CONCAT(m.file_name) AS images
+     from category c
      LEFT JOIN product p  ON (p.category_id = c.category_id)
-     INNER JOIN media m ON m.record_id = p.product_id
-     where c.category_id= ${db.escape(req.body.category_id)}`,
+     LEFT JOIN media m ON (p.product_id = m.record_id) AND (m.room_name='product')
+    where c.category_id= ${db.escape(req.body.category_id)} AND p.published=1
+   GROUP BY p.product_id`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err,
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.post("/getOfferProductByCategory", (req, res, next) => {
+  db.query(
+    `select p.title
+    ,p.product_id
+    ,p.sub_category_id
+    ,p.product_code
+    ,p.description
+    ,p.qty_in_stock
+    ,p.price
+    ,p.published
+    ,p.member_only
+    ,p.creation_date
+    ,p.modification_date
+    ,p.chi_title
+    ,p.product_description
+    ,p.sort_order
+    ,p.meta_title
+    ,p.meta_description
+    ,p.meta_keyword
+    ,p.latest
+    ,p.description_short
+    ,p.chi_description_short
+    ,p.general_quotation
+    ,p.unit
+    ,p.product_group_id
+    ,p.department_id
+    ,p.item_code
+    ,p.modified_by
+    ,p.created_by
+    ,p.part_number
+    ,p.price_from_supplier
+    ,p.model
+    ,p.carton_no
+    ,p.batch_no
+    ,p.vat
+    ,p.fc_price_code
+    ,p.batch_import
+    ,p.commodity_code
+    ,p.show_in_website
+    ,p.most_selling_product
+    ,p.site_id
+    ,p.damaged_qty
+    ,p.item_code_backup
+    ,p.hsn_sac
+    ,p.deals_of_week
+    ,p.top_seller
+    ,p.hot_deal
+    ,p.most_popular
+    ,p.top_rating
+    ,p.section_id
+    ,p.discount_type
+    ,p.discount_percentage
+    ,p.discount_amount
+    ,p.hsn
+    ,p.gst
+    ,p.product_weight
+    ,p.supplier_id
+    ,p.product_type
+    ,p.bar_code
+    ,p.tag_no
+    ,p.pack_size
+    ,p.discount_from_date
+    ,p.discount_to_date
+    ,p.mrp
+    ,p.raw_material
+    ,p.sales_part_number
+    ,p.igst
+    ,c.category_id
+    ,c.category_title 
+     ,GROUP_CONCAT(m.file_name) AS images
+     from category c
+     LEFT JOIN product p  ON (p.category_id = c.category_id)
+     LEFT JOIN media m ON (p.product_id = m.record_id) AND (m.room_name='product')
+    where c.category_id= ${db.escape(req.body.category_id)} AND p.discount_percentage!='' AND p.published=1
+   GROUP BY p.product_id`,
     (err, result) => {
       if (err) {
         return res.status(400).send({
@@ -193,11 +488,131 @@ app.post("/getProductByCategory", (req, res, next) => {
 
 
 
+
+app.post("/getBlogByCategory", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,b.blog_id
+    ,b.title
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,p.section_title
+    ,c.seo_title
+     ,m.record_id
+    ,m.file_name
+    ,COUNT(b.category_id) AS NumberOfBlogs
+    FROM category c
+    LEFT JOIN section p  ON (p.section_id = c.section_id)
+    LEFT JOIN blog b ON b.category_id = c.category_id
+    INNER JOIN media m ON m.record_id=b.blog_id
+    AND m.room_name="Blog"
+    WHERE c.category_id = ${db.escape(req.body.category_id)} 
+    GROUP BY b.blog_id
+  ORDER By c.sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err,
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+app.get("/getOffers", (req, res, next) => {
+  db.query(
+    `SELECT *
+    FROM product
+    WHERE DATE(discount_from_date) = DATE(CURRENT_DATE())
+    AND DATE(discount_to_date) = DATE(CURRENT_DATE())
+    OR MONTH(discount_from_date) = MONTH(CURRENT_DATE())
+    AND YEAR(discount_from_date) = YEAR(CURRENT_DATE())`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err,
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
+
+app.post("/getCategoryById", (req, res, next) => {
+  db.query(
+    `SELECT 
+  c.category_title,
+  m.media_id,
+  m.room_name,
+  m.file_name,
+  c.sort_order,
+  c.category_id,
+  s.section_title,
+  c.published,
+  c.section_id,
+  c.category_type,
+  c.internal_link,
+  c.published,
+  c.meta_title,
+  c.meta_description,
+  c.meta_keyword,
+  c.creation_date,
+  c.modification_date
+  ,c.seo_title
+  FROM category c 
+  LEFT JOIN (section s) ON (s.section_id=c.section_id )
+  INNER JOIN (media m) ON (m.record_id=c.category_id )
+    WHERE c.category_id = ${db.escape(req.body.category_id)}`,
+    (err, result) => {
+      if (err) {
+        return res.status(400).send({
+          data: err,
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+
 app.post("/editCategory", (req, res, next) => {
   db.query(
     `UPDATE category 
             SET 
-            title=${db.escape(req.body.title)}
+            category_title=${db.escape(req.body.category_title)}
             ,section_id=${db.escape(req.body.section_id)}
             ,description=${db.escape(req.body.description)}
             ,sort_order=${db.escape(req.body.sort_order)}
@@ -219,6 +634,7 @@ app.post("/editCategory", (req, res, next) => {
             ,member_only=${db.escape(req.body.member_only)}
             ,internal_link=${db.escape(req.body.internal_link)}
             ,show_in_nav=${db.escape(req.body.show_in_nav)}
+            ,seo_title=${db.escape(req.body.seo_title)}
             WHERE category_id =  ${db.escape(req.body.category_id)}`,
     (err, result) => {
       if (err) {
@@ -235,15 +651,14 @@ app.post("/editCategory", (req, res, next) => {
   );
 });
 
-
 app.post("/insertCategory", (req, res, next) => {
   let data = {
     category_id: req.body.category_id,
-    title: req.body.title,
+    category_title: req.body.category_title,
     section_id: req.body.section_id,
     description: req.body.description,
     sort_order: req.body.sort_order,
-    published: req.body.published,
+    published: 1,
     creation_date: req.body.creation_date,
     modification_date: req.body.modification_date,
     chi_title: req.body.chi_title,
@@ -261,6 +676,7 @@ app.post("/insertCategory", (req, res, next) => {
     member_only: req.body.member_only,
     internal_link: req.body.internal_link,
     show_in_nav: req.body.show_in_nav,
+    seo_title: req.body.seo_title,
   };
   let sql = "INSERT INTO category SET ?";
   let query = db.query(sql, data, (err, result) => {
@@ -351,6 +767,7 @@ app.post("/updateSortOrder", (req, res, next) => {
     }
   );
 });
+
 
 
 app.get("/secret-route", userMiddleware.isLoggedIn, (req, res, next) => {
