@@ -75,7 +75,7 @@ app.get('/getSectionForSidemenu', (req, res, next) => {
 app.post('/getSectionById', (req, res, next) => {
   db.query(`Select section_id
             ,section_type
-            ,title
+            ,section_title
             ,button_position
             ,sort_order
             ,published
@@ -107,7 +107,7 @@ app.post('/getSectionById', (req, res, next) => {
 
 app.post('/editSection', (req, res, next) => {
   db.query(`UPDATE section 
-            SET title=${db.escape(req.body.title)}
+            SET section_title=${db.escape(req.body.section_title)}
             ,section_type=${db.escape(req.body.section_type)}
             ,modification_date=${db.escape(new Date().toISOString())}
             ,sort_order=${db.escape(req.body.sort_order)}
@@ -159,7 +159,7 @@ app.post('/updateSortOrder', (req, res, next) => {
 app.post('/insertSection', (req, res, next) => {
 
   let data = {section_id	: req.body.section_id	
-    , title: req.body.title
+    , section_title: req.body.section_title
     , display_type: req.body.display_type
     , description	: req.body.description
     , sort_order	: req.body.sort_order

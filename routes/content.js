@@ -255,25 +255,7 @@ app.get('/getAboutUsCompany', (req, res, next) => {
   );
 });
 
-app.get("/getValueList", (req, res, next) => {
-  db.query(
-    `SELECT 
-       value,valuelist_id
-       FROM valuelist WHERE key_text="Content Type"`,
-    (err, result) => {
-      if (err) {
-        return res.status(400).send({
-          data: err
-        });
-      } else {
-        return res.status(200).send({
-          data: result,
-          msg: "Success",
-        });
-      }
-    }
-  );
-});
+
 
 
 app.get("/getFaqPage", (req, res, next) => {
