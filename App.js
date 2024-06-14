@@ -57,7 +57,7 @@ const media = require('./routes/media.js');
 const section = require('./routes/section.js');
 const contact = require('./routes/contact.js');
 const support = require('./routes/support.js');
-const commonApi = require('./routes/commonApi.js');
+//const commonApi = require('./routes/commonApi.js');
 
 app.use('/attendance', attendance);
 app.use('/product', product);
@@ -72,7 +72,7 @@ app.use('/media', media);
 app.use('/section', section);
 app.use('/contact', contact);
 app.use('/support', support);
-app.use('/commonApi', commonApi);
+//app.use('/commonApi', commonApi);
 
 const indexRouter = require('./routes/fileUpload'); 
 app.use('/file', indexRouter);
