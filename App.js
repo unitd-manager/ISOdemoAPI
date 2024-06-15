@@ -15,8 +15,8 @@ var credentials = {key: privateKey, cert: certificate};
 
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
-let port = 3001;
-let secureport = 3002;
+let port = 3003;
+let secureport = 3004;
 httpServer.listen(port, () => {
     console.log(`Server Running in port:${port}`);
   });
@@ -57,6 +57,7 @@ const media = require('./routes/media.js');
 const section = require('./routes/section.js');
 const contact = require('./routes/contact.js');
 const support = require('./routes/support.js');
+const score = require('./routes/score.js');
 
 
 app.use('/attendance', attendance);
@@ -72,6 +73,7 @@ app.use('/media', media);
 app.use('/section', section);
 app.use('/contact', contact);
 app.use('/support', support);
+app.use('/score', score);
 
 
 const indexRouter = require('./routes/fileUpload'); 

@@ -159,7 +159,7 @@ app.post('/updateSortOrder', (req, res, next) => {
 app.post('/insertSection', (req, res, next) => {
 
   let data = {section_id	: req.body.section_id	
-    , title: req.body.title
+    , section_title: req.body.section_title
     , display_type: req.body.display_type
     , description	: req.body.description
     , sort_order	: req.body.sort_order
