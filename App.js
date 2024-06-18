@@ -77,7 +77,6 @@ app.use('/contact', contact);
 app.use('/support', support);
 app.use('/isocode', isocode);
 app.use('/questionmanagement', questionmanagement);
-
 app.use('/score', score);
 
 
