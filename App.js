@@ -58,6 +58,7 @@ const section = require('./routes/section.js');
 const contact = require('./routes/contact.js');
 const support = require('./routes/support.js');
 const isocode = require('./routes/isocode.js');
+const questionmanagement = require('./routes/questionmanagement.js');
 
 app.use('/attendance', attendance);
 app.use('/product', product);
@@ -73,6 +74,8 @@ app.use('/section', section);
 app.use('/contact', contact);
 app.use('/support', support);
 app.use('/isocode', isocode);
+app.use('/questionmanagement', questionmanagement);
+
 
 
 const indexRouter = require('./routes/fileUpload'); 
