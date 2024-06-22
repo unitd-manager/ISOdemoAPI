@@ -12,7 +12,50 @@ app.use(
   })
 );
 
-
+app.get("/getCategory", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,p.section_title
+    ,c.seo_title
+    FROM category c
+    LEFT JOIN section p  ON (p.section_id = c.section_id)
+    WHERE c.category_id!='' AND c.category_type='Question Category'
+  ORDER By c.sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return;
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
 
 app.get("/getQuestion", (req, res, next) => {
   db.query(
@@ -70,17 +113,14 @@ q.created_by,
 q.creation_date,
 q.modified_by,
 q.modification_date,
-q.iso_code_id,
 q.option_1,
 q.option_2,
 option_3,
 q.option_4,
-ic.iso_code,
-ic.iso_code_id,
-c.category_title
+c.category_title,
+q.category_id
 FROM question_management q
-LEFT JOIN iso_code ic ON ic.iso_code_id=q.iso_code_id
-LEFT JOIN category c ON c.category_id=ic.category_id
+LEFT JOIN category c ON q.category_id=c.category_id
   WHERE q.question_id = ${db.escape(req.body.question_id)} `,
     (err, result) => {
       if (err) {
@@ -120,6 +160,7 @@ app.post("/editQuestionData", (req, res, next) => {
             ,modification_date=${db.escape(req.body.modification_date)}
             ,created_by=${db.escape(req.body.created_by)}
             ,iso_code_id=${db.escape(req.body.iso_code_id)}
+            ,category_id=${db.escape(req.body.category_id)}
             WHERE question_id  = ${db.escape(req.body.question_id )}`,
     (err, result) => {
       if (err) {
@@ -199,6 +240,8 @@ app.post("/insertQuestion", (req, res, next) => {
     modified_by: req.body.modified_by,
     modification_date: req.body.modification_date,
     iso_code_id: req.body.iso_code_id,
+    category_id: req.body.category_id,
+
   };
   let sql = "INSERT INTO question_management SET ?";
   let query = db.query(sql, data, (err, result) => {

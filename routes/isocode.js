@@ -50,6 +50,30 @@ app.get("/getIsoCode", (req, res, next) => {
   );
 });
 
+
+app.post("/insertQuestion", (req, res, next) => {
+  let data = {
+    iso_code_id : req.body.iso_code_id ,
+    question_id: req.body.question_id,
+    creation_date: req.body.creation_date,
+  };
+  let sql = "INSERT INTO iso_question SET ?";
+  let query = db.query(sql, data, (err, result) => {
+    if (err) {
+      console.log("error: ", err);
+      return res.status(400).send({
+        data: err,
+        msg: "failed",
+      });
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: "Success",
+      });
+    }
+  });
+});
+
 app.get("/getISOValueList", (req, res, next) => {
   db.query(
     `SELECT 
@@ -82,6 +106,113 @@ app.post('/getIsoCodeById', (req, res, next) => {
     ,c.category_title
     from iso_code i
     LEFT JOIN category c ON i.category_id = c.category_id
+    where i.iso_code_id = ${db.escape(req.body.iso_code_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+            });
+
+        }
+ 
+    }
+  );
+});
+
+
+app.get("/getQuestion", (req, res, next) => {
+  const isoCodeId = req.query.iso_code_id || req.body.iso_code_id;
+
+  const query = `
+    SELECT 
+      q.question_id,
+      q.question_code,
+      q.question,
+      q.question_type,
+      q.correct_answer
+    FROM 
+      question_management q
+    LEFT JOIN 
+      iso_question m
+    ON 
+      q.question_id = m.question_id AND m.iso_code_id = ?
+    WHERE 
+      m.question_id IS NULL;
+  `;
+
+  db.query(query, [isoCodeId], (err, result) => {
+    if (err) {
+      console.log("error: ", err);
+      return res.status(400).send({
+        data: err,
+        msg: "failed",
+      });
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: "Success",
+      });
+    }
+  });
+});
+app.get("/getCategory", (req, res, next) => {
+  db.query(
+    `SELECT c.category_title
+    ,c.category_id
+    ,c.section_id
+    ,c.description
+    ,c.sort_order
+    ,c.published
+    ,c.creation_date
+    ,c.modification_date
+    ,c.chi_title
+    ,c.chi_description
+    ,c.display_type
+    ,c.template
+    ,c.category_type
+    ,c.show_navigation_panel
+    ,c.external_link
+    ,c.meta_title
+    ,c.meta_keyword
+    ,c.meta_description
+    ,c.category_filter
+    ,c.description_short
+    ,c.member_only
+    ,c.internal_link
+    ,c.show_in_nav
+    ,p.section_title
+    ,c.seo_title
+    FROM category c
+    LEFT JOIN section p  ON (p.section_id = c.section_id)
+    WHERE c.category_id!='' AND c.category_type='ISO Category'
+  ORDER By c.sort_order ASC`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return;
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
+app.post('/getIsoQuestionById', (req, res, next) => {
+  db.query(`select 
+    i.iso_code_id
+    ,i.question_id
+    ,q.question
+    from iso_question i
+    LEFT JOIN question_management q ON i.question_id = q.question_id
     where i.iso_code_id = ${db.escape(req.body.iso_code_id)}`,
     (err, result) => {
       if (err) {
@@ -255,7 +386,25 @@ app.post("/getCodeValue", (req, res, next) => {
     }
   });
 });
+app.post('/deleteISOquestion', (req, res, next) => {
 
+  let data = {question_id: req.body.question_id};
+  let sql = "DELETE FROM iso_question WHERE ?";
+  let query = db.query(sql, data,(err, result) => {
+    if (err) {
+      console.log('error: ', err)
+      return res.status(400).send({
+        data: err,
+        msg: 'failed',
+      })
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: 'Success',
+          });
+    }
+  });
+});
 app.post('/insertISOcode', (req, res, next) => {
 
   let data = {iso_code_id	:req.body.iso_code_id	
