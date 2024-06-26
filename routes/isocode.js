@@ -51,27 +51,34 @@ app.get("/getIsoCode", (req, res, next) => {
 });
 
 
-app.post("/insertQuestion", (req, res, next) => {
-  let data = {
-    iso_code_id : req.body.iso_code_id ,
-    question_id: req.body.question_id,
-    creation_date: req.body.creation_date,
-  };
-  let sql = "INSERT INTO iso_question SET ?";
-  let query = db.query(sql, data, (err, result) => {
-    if (err) {
-      console.log("error: ", err);
-      return res.status(400).send({
-        data: err,
-        msg: "failed",
-      });
-    } else {
-      return res.status(200).send({
-        data: result,
-        msg: "Success",
-      });
-    }
-  });
+app.post('/insertQuestion', (req, res, next) => {
+  const questionData = req.body.questionData;
+
+  // Check if questionData is an array and has elements
+  if (Array.isArray(questionData) && questionData.length > 0) {
+    const values = questionData.map(q => [q.question_id, q.iso_code_id]);
+    const query = 'INSERT INTO iso_question (question_id, iso_code_id) VALUES ?';
+
+    db.query(query, [values], (err, result) => {
+      if (err) {
+        console.log('error: ', err);
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+        });
+      }
+    });
+  } else {
+    return res.status(400).send({
+      data: 'Invalid data',
+      msg: 'failed',
+    });
+  }
 });
 
 app.get("/getISOValueList", (req, res, next) => {
@@ -104,6 +111,10 @@ app.post('/getIsoCodeById', (req, res, next) => {
     ,i.version
     ,i.iso_code
     ,c.category_title
+    ,i.creation_date
+    ,i.modification_date
+    ,i.created_by
+    ,i.modified_by
     from iso_code i
     LEFT JOIN category c ON i.category_id = c.category_id
     where i.iso_code_id = ${db.escape(req.body.iso_code_id)}`,
@@ -129,6 +140,7 @@ app.post('/getIsoCodeById', (req, res, next) => {
 
 app.get("/getQuestion", (req, res, next) => {
   const isoCodeId = req.query.iso_code_id || req.body.iso_code_id;
+  const categoryId = req.query.category_id || req.body.category_id;
 
   const query = `
     SELECT 
@@ -144,10 +156,12 @@ app.get("/getQuestion", (req, res, next) => {
     ON 
       q.question_id = m.question_id AND m.iso_code_id = ?
     WHERE 
-      m.question_id IS NULL;
+      m.question_id IS NULL
+    AND 
+      q.category_id = ?
   `;
 
-  db.query(query, [isoCodeId], (err, result) => {
+  db.query(query, [isoCodeId, categoryId], (err, result) => {
     if (err) {
       console.log("error: ", err);
       return res.status(400).send({
@@ -240,6 +254,7 @@ app.post('/editISOCode', (req, res, next) => {
             ,description=${db.escape(req.body.description)}
             ,status=${db.escape(req.body.status)}
             ,category_id=${db.escape(req.body.category_id)}
+            ,modification_date=${db.escape(req.body.modification_date)}
             WHERE iso_code_id = ${db.escape(req.body.iso_code_id)}`,
     (err, result) => {
      
