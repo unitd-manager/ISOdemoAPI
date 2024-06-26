@@ -19,12 +19,40 @@ app.use(
   })
 );
 app.get('/getScoreManage', (req, res, next) => {
-  db.query(`Select s.*, a.company_name
+  db.query(`Select s.*, a.company_name,t.correct_count
   From score_management s
           LEFT JOIN (company a) ON (a.company_id = s.company_id)
-
+                LEFT JOIN (testing t) ON (t.score_management_id = s.score_management_id)
   Where s.score_management_id !=''`,
     (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+
+            });
+
+        }
+ 
+    }
+  );
+});
+
+app.get('/getQuestions', (req, res, next) => {
+  const invoiceItemId = req.query.iso_code_id;
+
+  db.query(`Select s.*, a.question,a.option_1,a.option_2,a.option_3,a.option_4,a.correct_answer,a.question_type
+  From iso_question s
+          LEFT JOIN (question_management a) ON (a.question_id = s.question_id)
+
+  Where s.iso_code_id= ?`,
+  [invoiceItemId],(err, result) => {
       if (err) {
         console.log('error: ', err)
         return res.status(400).send({
@@ -50,7 +78,7 @@ app.post("/getScoreHistory", (req, res, next) => {
     c.*,
     a.question
     FROM score_management_history c
-  LEFT JOIN (question_management a) ON (a.question_management_id = c.question_id)
+  LEFT JOIN (question_management a) ON (a.question_id = c.question_id)
    WHERE c.score_management_id = ${db.escape(req.body.score_management_id)} `,
     (err, result) => {
       if (err) {
@@ -66,13 +94,38 @@ app.post("/getScoreHistory", (req, res, next) => {
       }
     });
   });
+
+  app.post("/getCounts", (req, res, next) => {
+    db.query(
+      `Select 
+      c.*
+     
+      FROM testing c
+     WHERE c.score_management_id = ${db.escape(req.body.score_management_id)} `,
+      (err, result) => {
+        if (err) {
+          console.log("error: ", err);
+          return res.status(400).send({
+            data: err,
+            msg: "failed",
+          });
+        } else {
+          return res.status(200).send({
+            data: result,
+          });
+        }
+      });
+    });
+
 app.post("/getScoreManageById", (req, res, next) => {
   db.query(
     `Select 
     c.*
     ,a.company_name
+    ,t.correct_count
     FROM score_management c
         LEFT JOIN (company a) ON (a.company_id = c.company_id)
+                LEFT JOIN (testing t) ON (t.score_management_id = c.score_management_id)
    WHERE c.score_management_id = ${db.escape(req.body.score_management_id)} `,
     (err, result) => {
       if (err) {
@@ -182,7 +235,7 @@ app.post("/editScore", (req, res, next) => {
 app.post("/editScoreHistory", (req, res, next) => {
   db.query(
     `UPDATE score_management_history
-            SET title=${db.escape(req.body.title)}
+            SET answer=${db.escape(req.body.answer)}
             ,question_id=${db.escape(req.body.question_id)}
             ,review_status=${db.escape(req.body.review_status)}
             ,comments=${db.escape(req.body.comments)}
@@ -210,40 +263,78 @@ app.post("/editScoreHistory", (req, res, next) => {
   );
 });
 
-app.post("/addScoreHistory", (req, res, next) => {
-  let data = {
-    title: req.body.title,
-    question_id: req.body.question_id,
-    comments: req.body.comments,
-    review_status: req.body.review_status,
-    reviewer: req.body.reviewer,
-    score_management_id: req.body.score_management_id,
-    creation_date: req.body.creation_date,
-  
-  };
-  let sql = "INSERT INTO score_management_history SET ?";
-  let query = db.query(sql, data, (err, result) => {
-    if (err) {
-      console.log("error: ", err);
-      return res.status(400).send({
-        data: err,
-        msg: "failed",
-      });
-    } else {
-      return res.status(200).send({
-        data: result,
-        msg: "Success",
-      });
+
+app.post("/updateAnswerCounts", (req, res, next) => {
+  db.query(
+    `UPDATE testing
+            SET answered_count=${db.escape(req.body.answered_count)}
+            ,unanswered_count=${db.escape(req.body.unanswered_count)}
+            ,review_status=${db.escape(req.body.review_status)}
+             ,iso_code_id=${db.escape(req.body.iso_code_id)}
+             ,correct_count=${db.escape(req.body.correct_count)}
+             ,total_question=${db.escape(req.body.total_question)}
+            ,comments=${db.escape(req.body.comments)}
+            ,reviewer=${db.escape(req.body.reviewer)}
+          
+            ,modification_date=${db.escape(
+              req.body.modification_date
+            )}
+
+            WHERE score_management_id = ${db.escape(req.body.score_management_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
     }
+  );
+});
+
+app.post("/addScoreHistory", (req, res, next) => {
+  const answers = req.body.answers; // Extract answers array from request body
+
+  // Iterate over each answer and insert into the database
+  answers.forEach(answer => {
+    let data = {
+      answer: answer.answer, // Store the answer in the title field
+      question_id: answer.question_id,
+      score_management_id: answer.score_management_id,
+      creation_date: answer.creation_date,
+      is_update: answer.is_update,
+    };
+
+    let sql = "INSERT INTO score_management_history SET ?";
+    let query = db.query(sql, data, (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      }
+    });
+  });
+
+  return res.status(200).send({
+    msg: "Success",
   });
 });
+
 app.post("/insertScore", (req, res, next) => {
   let data = {
     company_id: req.body.company_id,
-  
+    iso_code_id: req.body.iso_code_id,
     creation_date: req.body.creation_date,
-  
   };
+
   let sql = "INSERT INTO score_management SET ?";
   let query = db.query(sql, data, (err, result) => {
     if (err) {
@@ -253,13 +344,34 @@ app.post("/insertScore", (req, res, next) => {
         msg: "failed",
       });
     } else {
-      return res.status(200).send({
-        data: result,
-        msg: "Success",
+      // Get the inserted score_management_id
+      let scoreManagementId = result.insertId;
+
+      // Now insert into the testing table
+      let testingData = {
+        score_management_id: scoreManagementId,
+        // Add other fields you need to insert into the testing table
+      };
+
+      let testingSql = "INSERT INTO testing SET ?";
+      let testingQuery = db.query(testingSql, testingData, (testingErr, testingResult) => {
+        if (testingErr) {
+          console.log("error: ", testingErr);
+          return res.status(400).send({
+            data: testingErr,
+            msg: "failed",
+          });
+        } else {
+          return res.status(200).send({
+            data: testingResult,
+            msg: "Success",
+          });
+        }
       });
     }
   });
 });
+
 app.get("/getCustomerName", (req, res, next) => {
   db.query(`SELECT company_name,company_id FROM company`, (err, result) => {
     if (err) {
@@ -275,8 +387,24 @@ app.get("/getCustomerName", (req, res, next) => {
   });
 });
 
+app.get("/getIsoName", (req, res, next) => {
+  db.query(`SELECT iso_code,iso_code_id FROM iso_code`, (err, result) => {
+    if (err) {
+      return res.status(400).send({
+        data: err,
+        msg: "failed",
+      });
+    } else {
+      return res.status(200).send({
+        data: result,
+      });
+    }
+  });
+});
+
+
 app.get("/getQuestionName", (req, res, next) => {
-  db.query(`SELECT question,question_management_id FROM question_management`, (err, result) => {
+  db.query(`SELECT question,question_id FROM question_management`, (err, result) => {
     if (err) {
       return res.status(400).send({
         data: err,
