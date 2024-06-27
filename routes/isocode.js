@@ -255,6 +255,7 @@ app.post('/editISOCode', (req, res, next) => {
             ,status=${db.escape(req.body.status)}
             ,category_id=${db.escape(req.body.category_id)}
             ,modification_date=${db.escape(req.body.modification_date)}
+            ,modified_by=${db.escape(req.body.modified_by)}
             WHERE iso_code_id = ${db.escape(req.body.iso_code_id)}`,
     (err, result) => {
      
