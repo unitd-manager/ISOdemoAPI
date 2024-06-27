@@ -430,6 +430,7 @@ app.post('/insertISOcode', (req, res, next) => {
    , modification_date: req.body.modification_date
    , description: req.body.description
    , iso_code: req.body.iso_code
+   ,created_by: req.body.created_by
   };
   let sql = "INSERT INTO iso_code SET ?";
   let query = db.query(sql, data,(err, result) => {
