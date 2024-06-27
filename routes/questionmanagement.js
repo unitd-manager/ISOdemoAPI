@@ -70,17 +70,11 @@ app.get("/getQuestion", (req, res, next) => {
    q.creation_date,
    q.modified_by,
    q.modification_date,
-   q.iso_code_id,
-   q.option_1,
-   q.option_2,
    q.option_3,
    q.option_4,
-   ic.iso_code,
-   ic.iso_code_id,
    c.category_title
   FROM question_management q
-  LEFT JOIN iso_code ic ON ic.iso_code_id=q.iso_code_id
-  LEFT JOIN category c ON c.category_id=ic.category_id
+  LEFT JOIN category c ON c.category_id=q.category_id
   ORDER BY q.question_id DESC`,
     (err, result) => {
       if (err) {
