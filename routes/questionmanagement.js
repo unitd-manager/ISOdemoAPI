@@ -72,6 +72,7 @@ app.get("/getQuestion", (req, res, next) => {
    q.modification_date,
    q.option_3,
    q.option_4,
+   q.published,
    c.category_title
   FROM question_management q
   LEFT JOIN category c ON c.category_id=q.category_id
@@ -112,7 +113,8 @@ q.option_2,
 option_3,
 q.option_4,
 c.category_title,
-q.category_id
+q.category_id,
+q.published
 FROM question_management q
 LEFT JOIN category c ON q.category_id=c.category_id
   WHERE q.question_id = ${db.escape(req.body.question_id)} `,
@@ -155,6 +157,7 @@ app.post("/editQuestionData", (req, res, next) => {
             ,created_by=${db.escape(req.body.created_by)}
             ,iso_code_id=${db.escape(req.body.iso_code_id)}
             ,category_id=${db.escape(req.body.category_id)}
+            ,published=${db.escape(req.body.published)}
             WHERE question_id  = ${db.escape(req.body.question_id )}`,
     (err, result) => {
       if (err) {
@@ -386,6 +389,6 @@ app.get('/getIsoCode', (req, res, next) => {
    );
   });
 
-
+  
 
 module.exports = app;
