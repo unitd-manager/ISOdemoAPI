@@ -358,6 +358,10 @@ app.post("/getCodeValue", (req, res, next) => {
       key_text = 'nextISOCode';
       sql = "SELECT * FROM setting WHERE key_text='ISOcodeprofix' OR key_text='nextISOCode'";
   }
+  else if(type == 'customercode'){
+    key_text = 'nextCustomerCode';
+    sql = "SELECT * FROM setting WHERE key_text='Customercodeprofix' OR key_text='nextCustomerCode'";
+}
   else if(type == 'PurchaseReturn'){
      
     key_text = 'nextPurchaseReturnCode';
