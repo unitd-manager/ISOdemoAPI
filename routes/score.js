@@ -209,7 +209,9 @@ app.post("/editScore", (req, res, next) => {
             ,review_status=${db.escape(req.body.review_status)}
             ,comments=${db.escape(req.body.comments)}
             ,reviewer=${db.escape(req.body.reviewer)}
-          
+            ,modified_by=${db.escape(
+              req.body.modified_by
+            )}
             ,modification_date=${db.escape(
               req.body.modification_date
             )}
@@ -334,6 +336,7 @@ app.post("/insertScore", (req, res, next) => {
     company_id: req.body.company_id,
     iso_code_id: req.body.iso_code_id,
     creation_date: req.body.creation_date,
+    created_by: req.body.created_by
   };
 
   let sql = "INSERT INTO score_management SET ?";
