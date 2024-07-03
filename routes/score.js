@@ -47,9 +47,10 @@ app.get('/getScoreManage', (req, res, next) => {
 app.get('/getQuestions', (req, res, next) => {
   const invoiceItemId = req.query.iso_code_id;
 
-  db.query(`Select s.*, a.question,a.option_1,a.option_2,a.option_3,a.option_4,a.correct_answer,a.question_type
+  db.query(`Select s.*, a.question,a.option_1,a.option_2,a.option_3,a.option_4,a.correct_answer,a.question_type,cy.category_title,cy.category_id
   From iso_question s
           LEFT JOIN (question_management a) ON (a.question_id = s.question_id)
+          LEFT JOIN (category cy) ON (a.category_id = cy.category_id)
 
   Where s.iso_code_id= ?`,
   [invoiceItemId],(err, result) => {
