@@ -79,6 +79,8 @@ app.post('/getSectionById', (req, res, next) => {
             ,button_position
             ,sort_order
             ,published
+            ,groups
+            ,routes
             ,creation_date
             ,modification_date
             From section
@@ -102,6 +104,7 @@ app.post('/getSectionById', (req, res, next) => {
     }
   );
 });
+
 
 
 

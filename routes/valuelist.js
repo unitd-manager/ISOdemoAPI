@@ -72,6 +72,10 @@ app.get('/getValueListDropdown', (req, res, next) => {
       { id: '19', name: 'ISO Status'},
       { id: '20', name: 'Question Type'},
       { id: '21', name: 'Question Status'},
+      { id: '21', name: 'GapAnalysis Description1'},
+      { id: '21', name: 'GapAnalysis Description2'},
+      { id: '21', name: 'GapAnalysis Description3'},
+      { id: '21', name: 'GapAnalysis Description4'},
     
     ],
     msg: 'Success',
