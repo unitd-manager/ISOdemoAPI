@@ -61,6 +61,7 @@ const isocode = require('./routes/isocode.js');
 const questionmanagement = require('./routes/questionmanagement.js');
 const score = require('./routes/score.js');
 const GapAnalysis = require('./routes/GapAnalysis.js');
+const checklist = require('./routes/checklist.js');
 
 
 app.use('/attendance', attendance);
@@ -80,6 +81,7 @@ app.use('/isocode', isocode);
 app.use('/questionmanagement', questionmanagement);
 app.use('/score', score);
 app.use('/GapAnalysis', GapAnalysis);
+app.use('/checklist', checklist);
 
 
 const indexRouter = require('./routes/fileUpload'); 
