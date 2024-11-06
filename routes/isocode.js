@@ -56,8 +56,8 @@ app.post('/insertQuestion', (req, res, next) => {
 
   // Check if questionData is an array and has elements
   if (Array.isArray(questionData) && questionData.length > 0) {
-    const values = questionData.map(q => [q.question_id, q.iso_code_id]);
-    const query = 'INSERT INTO iso_question (question_id, iso_code_id) VALUES ?';
+    const values = questionData.map(q => [q.question_id, q.checklist_id]);
+    const query = 'INSERT INTO iso_question (question_id, checklist_id) VALUES ?';
 
     db.query(query, [values], (err, result) => {
       if (err) {
@@ -139,7 +139,7 @@ app.post('/getIsoCodeById', (req, res, next) => {
 
 
 app.get("/getQuestion", (req, res, next) => {
-  const isoCodeId = req.query.iso_code_id || req.body.iso_code_id;
+  const checklistId = req.query.checklist_id || req.body.checklist_id;
   const categoryId = req.query.category_id || req.body.category_id;
 
   const query = `
@@ -154,14 +154,14 @@ app.get("/getQuestion", (req, res, next) => {
     LEFT JOIN 
       iso_question m
     ON 
-      q.question_id = m.question_id AND m.iso_code_id = ?
+      q.question_id = m.question_id AND m.checklist_id = ?
     WHERE 
       m.question_id IS NULL
     AND 
       q.category_id = ?
   `;
 
-  db.query(query, [isoCodeId, categoryId], (err, result) => {
+  db.query(query, [checklistId, categoryId], (err, result) => {
     if (err) {
       console.log("error: ", err);
       return res.status(400).send({
@@ -220,14 +220,44 @@ app.get("/getCategory", (req, res, next) => {
     }
   );
 });
+
+app.post('/getIsoChecklistByISObyId', (req, res, next) => {
+  db.query(`select 
+    i.iso_checklist_id 
+    ,i.checklist_id 
+    ,i.iso_code_id
+    ,c.title
+    from iso_checklist i
+    LEFT JOIN checklist c ON i.checklist_id = c.checklist_id
+    where i.iso_code_id = ${db.escape(req.body.iso_code_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+            });
+
+        }
+ 
+    }
+  );
+});
+
+
 app.post('/getIsoQuestionById', (req, res, next) => {
   db.query(`select 
-    i.iso_code_id
+    i.checklist_id
     ,i.question_id
     ,q.question
     from iso_question i
     LEFT JOIN question_management q ON i.question_id = q.question_id
-    where i.iso_code_id = ${db.escape(req.body.iso_code_id)}`,
+    where i.checklist_id = ${db.escape(req.body.checklist_id)}`,
     (err, result) => {
       if (err) {
         console.log('error: ', err)
@@ -454,10 +484,84 @@ app.post('/insertISOcode', (req, res, next) => {
   });
 });
 
+app.post('/deleteChecklist', (req, res, next) => {
 
+  let data = {checklist_id: req.body.checklist_id};
+  let sql = "DELETE FROM iso_checklist WHERE ?";
+  let query = db.query(sql, data,(err, result) => {
+    if (err) {
+      console.log('error: ', err)
+      return res.status(400).send({
+        data: err,
+        msg: 'failed',
+      })
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: 'Success',
+          });
+    }
+  });
+});
 
+app.post('/insertISOChecklist', (req, res, next) => {
 
+  let data = {iso_checklist_id 	:req.body.iso_checklist_id 	
+   , checklist_id	: req.body.checklist_id	
+   , creation_date: req.body.creation_date
+   , modification_date: req.body.modification_date	
+   , created_by: req.body.created_by
+   , modification_date: req.body.modification_date
+   , modified_by: req.body.modified_by
+   , iso_code_id: req.body.iso_code_id
 
+  };
+  let sql = "INSERT INTO iso_checklist SET ?";
+  let query = db.query(sql, data,(err, result) => {
+    if (err) {
+      console.log('error: ', err)
+      return res.status(400).send({
+        data: err,
+        msg: 'failed',
+      })
+    } else {
+      return res.status(200).send({
+        data: result,
+        msg: 'Success',
+          });
+    }
+  });
+});
+app.post('/getIsoChecklistById', (req, res, next) => {
+  db.query(`select 
+    i.iso_code_id
+    ,i.iso_checklist_id
+    ,i.checklist_id 
+    ,i.creation_date
+    ,i.modification_date
+    ,i.created_by
+    ,i.modified_by
+    from iso_checklist i
+    LEFT JOIN checklist c ON i.checklist_id = c.checklist
+    where i.iso_checklist_id = ${db.escape(req.body.iso_checklist_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log('error: ', err)
+        return res.status(400).send({
+          data: err,
+          msg: 'failed',
+        })
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: 'Success',
+            });
+
+        }
+ 
+    }
+  );
+});
 
 
 app.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {

@@ -40,18 +40,16 @@ app.get("/getISO", (req, res, next) => {
 
 app.post('/getChecklistById', (req, res, next) => {
   db.query(`SELECT cl.checklist_id,
-      cl.title AS checklist_title,
-      cl.iso_code_id,
-      i.title AS iso_code_title,
+      cl.title,
+      cl.checklist_id,
       q.question AS question_title,
       COUNT(q.question_id) AS question_count,
       cl.created_by
      FROM checklist cl
-     LEFT JOIN iso_code i ON cl.iso_code_id = i.iso_code_id
-     LEFT JOIN iso_question iq ON cl.iso_code_id = iq.iso_code_id
+     LEFT JOIN iso_question iq ON cl.checklist_id = iq.checklist_id
      LEFT JOIN question_management q ON iq.question_id = q.question_id
      WHERE cl.checklist_id = ${db.escape(req.body.checklist_id)}
-     GROUP BY q.question_id`,
+     GROUP BY cl.checklist_id`,
     (err, result) => {
      
       if (err) {
@@ -72,13 +70,11 @@ app.post('/getChecklistById', (req, res, next) => {
 app.get("/getCheckList", (req, res, next) => {
   db.query(
     `SELECT cl.checklist_id,
-      cl.title AS checklist_title,
-      cl.iso_code_id,
-      i.title AS iso_code_title,
+      cl.title,
+      cl.checklist_id,
       COUNT(q.question_id) AS question_count
      FROM checklist cl
-     LEFT JOIN iso_code i ON cl.iso_code_id = i.iso_code_id
-     LEFT JOIN iso_question iq ON cl.iso_code_id = iq.iso_code_id
+     LEFT JOIN iso_question iq ON cl.checklist_id = iq.checklist_id
      LEFT JOIN question_management q ON iq.question_id = q.question_id
      WHERE cl.checklist_id != ''
      GROUP BY cl.checklist_id`,
@@ -122,6 +118,31 @@ app.post("/insertChecklist", (req, res, next) => {
   });
 });
 
+app.post("/editChecklist", (req, res, next) => {
+  db.query(
+    `UPDATE checklist
+            SET title=${db.escape(req.body.title)}
+               ,modification_date=${db.escape(
+              new Date().toISOString().slice(0, 19).replace("T", " ")
+            )}
+            ,modified_by=${db.escape(req.body.modified_by)}
+            WHERE checklist_id = ${db.escape(req.body.checklist_id)}`,
+    (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return res.status(400).send({
+          data: err,
+          msg: "failed",
+        });
+      } else {
+        return res.status(200).send({
+          data: result,
+          msg: "Success",
+        });
+      }
+    }
+  );
+});
                 
 
 module.exports = app;
